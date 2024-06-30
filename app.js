@@ -4,6 +4,16 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 
+const mongoose = require("mongoose");
+mongoose.set("strictQuery", false);
+const mongodb =
+  "mongodb+srv://luckie:boban@cluster0.8yrtdkn.mongodb.net/inventory_app?retryWrites=true&w=majority&appName=Cluster0";
+
+main().catch((err) => console.log(err));
+async function main() {
+  await mongoose.connect(mongodb);
+}
+
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 
