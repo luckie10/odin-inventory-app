@@ -1,0 +1,16 @@
+extend layout
+
+block content
+  h1= title
+
+  form(method="POST")
+    label(for="name") Category: 
+    input#name(type="text", name="name" placeholder='Misc, Other, etc' value=(category===undefined ? "": category.name) required)
+    label(for="description") Desciption: 
+    input#description(type="text", name="description" placeholder='This is a description' value=(category===undefined ? "": category.description))
+    button(type='submit') Submit
+
+  if errors
+    ul
+      each error in errors
+        li!= error.msg
