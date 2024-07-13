@@ -1,6 +1,8 @@
 const Item = require("../models/item");
+const Category = require("../models/category");
 
 const asyncHandler = require("express-async-handler");
+const { body, validationResult } = require("express-validator");
 
 exports.item_list = asyncHandler(async (req, res, next) => {
   const items = await Item.find({}, "name").sort({ name: 1 }).exec();
@@ -21,12 +23,61 @@ exports.item_detail = asyncHandler(async (req, res, next) => {
 });
 
 exports.item_create_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Item create GET");
+  const allCategories = await Category.find().sort({ name: 1 }).exec();
+
+  res.render("item_form", {
+    title: "Create Item",
+    all_categories: allCategories,
+  });
 });
 
-exports.item_create_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Item create POST");
-});
+exports.item_create_post = [
+  body("name", "Name must be at least 2 characters")
+    .trim()
+    .isLength({ min: 3 })
+    .escape(),
+  body("category", "Must select a category")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body("description").trim().escape(),
+  body("price", "Must specify an item price.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body("stock", "Must specify a stock amount.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
+
+    const item = new Item({
+      name: req.body.name,
+      description: req.body.description,
+      category: req.body.category,
+      price: req.body.price,
+      stock: req.body.stock,
+    });
+
+    if (!errors.isEmpty()) {
+      const allCategories = await Category.find().sort({ name: 1 }).exec();
+
+      return res.render("item_form", {
+        title: "Create Item",
+        all_categories: allCategories,
+        item: item,
+        errors: errors.array(),
+      });
+    }
+
+    console.log(req.body);
+
+    await item.save();
+    res.redirect(item.url);
+  }),
+];
 
 exports.item_update_get = asyncHandler(async (req, res, next) => {
   res.send("NOT IMPLEMENTED: Item update GET");

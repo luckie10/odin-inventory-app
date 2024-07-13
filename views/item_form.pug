@@ -1,0 +1,36 @@
+extend layout
+
+block content
+  h1= title
+  
+  form(method="POST") 
+    div
+      label(for="name") Item: 
+      input#name(type="text", name="name" required value=(item===undefined ? "" : item.name) placeholder='Monitor, Tray, etc')
+    div
+      label Category
+      select#category(name="category" required)
+        option(value="") -- Select category --
+        for category in all_categories
+          if item
+            if category._id.toString() === item.category._id.toString()
+              option(value=category._id selected) #{category.name}
+            else
+              option(value=category._id) #{category.name}
+          else
+            option(value=category._id) #{category.name}
+    div
+      label(for="description") Description: 
+      input#description(type="text", name="description" value=(item===undefined ? "" : item.description) placeholder='I describe the item')
+    div
+      label(for="price") Price: 
+      input#price(required type="number", name="price" value=(item===undefined ? "" : item.price) placeholder='0')
+    div
+      label(for="stock") Stock: 
+      input#stock(required type="number", name="stock" value=(item===undefined ? "" : item.stock) placeholder='0')
+    button(type='submit') Submit
+
+  if errors
+    ul
+      each error in errors
+        li!= error.msg
