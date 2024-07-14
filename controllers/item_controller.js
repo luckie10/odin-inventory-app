@@ -144,9 +144,19 @@ exports.item_update_post = [
 ];
 
 exports.item_delete_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Item delete GET");
+  const item = await Item.findById(req.params.id).exec();
+
+  if (!item) {
+    res.redirect("/items");
+  }
+
+  res.render("item_delete", {
+    title: `Delete item`,
+    item: item,
+  });
 });
 
 exports.item_delete_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Item delete POST");
+  await Item.findByIdAndDelete(req.params.id);
+  res.redirect("/items");
 });
