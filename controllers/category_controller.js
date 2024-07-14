@@ -66,12 +66,52 @@ exports.category_create_post = [
 ];
 
 exports.category_update_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Category update GET");
+  const category = await Category.findById(req.params.id).exec();
+
+  if (!category) {
+    const err = new Error("Category does not exist");
+    err.status = 404;
+    next(err);
+  }
+
+  res.render("category_form", {
+    title: "Update category",
+    category: category,
+  });
 });
 
-exports.category_update_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Category update POST");
-});
+exports.category_update_post = [
+  body("name", "Category name must contain at least 3 characters.")
+    .trim()
+    .isLength({ min: 3 })
+    .escape(),
+  body("description").trim().escape(),
+
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
+
+    const category = new Category({
+      name: req.body.name,
+      description: req.body.description,
+      _id: req.params.id,
+    });
+
+    if (!errors.isEmpty()) {
+      return res.render("category_form", {
+        title: "Update category",
+        category: category,
+        errors: errors.array(),
+      });
+    }
+
+    const updatedCategory = await Category.findByIdAndUpdate(
+      req.params.id,
+      category,
+      {},
+    );
+    return res.redirect(updatedCategory.url);
+  }),
+];
 
 exports.category_delete_get = asyncHandler(async (req, res, next) => {
   res.send("NOT IMPLEMENTED: Category delete GET");
